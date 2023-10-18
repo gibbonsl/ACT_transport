@@ -1,6 +1,6 @@
 cd "G:\Laura\ACT transport"
 
-use actdata211223, clear
+use actdata2020, clear
 
 append using seabrfss2019
 replace act=0 if act==.
@@ -113,5 +113,5 @@ la var race3 "Race W/B/O"
 la def act 0 BRFSS 1 ACT
 la val act act
 la var act "Cohort"
-save combined211223, replace
+save combined, replace
 
