@@ -50,28 +50,29 @@ foreach x in ed3 ageg5yr race3 marry work smoke  {
 		restore
 	}
 }	
+stop
 
 /*Results window looked like this (combined weights)
-  0.005  sex
-  0.051  hispanic
-  0.028  bpcurr
+ -0.016  sex
+  0.026  hispanic
+ -0.012  bpcurr
 
  Then I pasted the values into Excel, which is hardly elegant, but straight-forward!
    Excel data looked like this:
    Survey   Combined   Variab  
-     .051       .005   sex  
-    -.072       .051   hispanic  
-    -.131       .028   bpcurr  
+     .051     -0.016  sex 
+    -.072      0.026  hispanic  
+    -.131     -0.012  bpcurr 
 	
   Next I numbered in "varn" the order I wanted them to occur in the figure:	
-   Survey   Combined   varn   Variab  
-     .051       .005      5   sex  
-    -.072       .051     12   hispanic  
-    -.131       .028     23   bpcurr  
+   Survey    Combined   varn   Variab  
+     .051      -0.016       5   sex  
+    -.072       0.026      12   hispanic  
+    -.131      -0.012      23   bpcurr  
 */
 
 *  graphing
-import excel using "G:\Laura\ACT transport\Output\develop weights by 231009", sheet(Unstd figure 1) clear first
+import excel using "G:\Laura\ACT transport\Output\develop weights by 240212", sheet(Unstd figure 1) clear first
 
 * These labels help, but the figure is hard to read because they had to be fairly short, so I had someone edit in better labels in InDesign.
 la def varn 5	"Female" 12	"Hispanic" 23	"Hyperten. med" 24	"Cholesterol med" 25	"Heart disease" 26	"Stroke" 27	"Asthma" 28	"COPD" 29	"Diabetes" 30	"Cancer" 31	"Osteoarthritis" 32	"Good-exc. health" 33	"Diff. dress/bath" 34	"Diff. walk/stairs" 6	"< HS" 7	"HS" 8	"College" 1	"Age 65-69" 2	"Age 70-74" 3	"Age 75-79" 4	"Age 80-99" 9	"White" 10	"Black" 11	"Other" 13	"Never married" 14	"Married/Living" 15	"Sep/Div/Other" 16	"Widowed" 17	"Retired" 18	"Employed" 19	"Other" 20	"Never smoked" 21	"Past smoker" 22	"Current smoker" 
@@ -86,5 +87,6 @@ scatter varn Survey, msymbol(Oh) mcolor(black) ///
 	legend(label(1 "Survey weights only") label(2 "Combined weights")) legend(size(small)) ///
 	ysize(12) xsize(12)
 
+graph export "Figure 1.pdf", replace	
 
 

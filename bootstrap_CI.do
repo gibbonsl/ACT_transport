@@ -1,9 +1,7 @@
 cd "G:\Laura\ACT transport"
 
-use impute40by, clear	// want zswiowbase
+use impute40by, clear	
 rename id subject
-mi unregister mi // confusing because the variable is "mi"
-drop *mi // not used, problematic
 qui forvalues i=1/40 {
 	preserve
 	tempfile t`i'
@@ -36,7 +34,7 @@ save prev40, replace
 qui forvalues i=1/40 {
 use all40, clear
 	keep if i==`i'
-	merge 1:m subject using G:\Paul\Cecilia\eyedxpx220707, keep(1 3) nogen keepusing(subject surv_age age age_bl anydem educ white smoke apoe gender visit glyrcat amdyrcat dryrcat cataractyrcat gltodate amdtodate drtodate cataracttodate)
+	merge 1:m subject using G:\Paul\Cecilia\eyedxpx220707, keep(1 3) nogen keepusing(subject surv_age age age_bl anydem anyad educ white smoke apoe gender visit glyrcat amdyrcat dryrcat cataractyrcat gltodate amdtodate drtodate cataracttodate)
 save "G:\Laura\ACT transport\for_boot\long`i'", replace 
 } 
 
@@ -53,7 +51,7 @@ save "G:\Laura\ACT transport\for_boot\long`i'", replace
 
 	preserve
 	svyset [pweight=xmmsawt] 
-	svy: logit act i.ageg5yr sex i.ed3 i.race3 hispanic i.marry i.work i.smoke bpcurr cholcurr  heart_dis stroke asthma copd diabetes cancer osteoa ratehealth diffdres diffwalk sex##i.work sex##i.smoke sex##i.osteoa sex##i.diffwalk i.ed3#sex i.ed3##i.race3 i.marry##i.ageg i.marry##i.ed3 i.marry##i.race3 i.ed3#cholcurr c.ratehealth##i.ageg c.ratehealth##sex c.ratehealth##i.ed3 c.ratehealth##i.race3 if visit==0 | act==0
+	svy: logit act i.ageg5yr sex i.ed3 i.race3 hispanic i.marry i.work i.smoke bpcurr cholcurr heart_dis stroke asthma copd diabetes osteoa ratehealth diffdres diffwalk if visit==0 | act==0
 	* now default is probability of a positive outcome since not mi
 	predict prbase if e(sample)
 	gen iowbase=(1-prbase)/prbase 
@@ -69,7 +67,7 @@ save "G:\Laura\ACT transport\for_boot\long`i'", replace
 	bys subj (visit): replace wsiowbase=wsiowbase[_n-1] if wsiowbase==.
 	
 	* dementia
-	stset surv_age [pweight=wsiowbase] 	if act==1, failure(anydem) origin(time 0) enter(age_bl) id(subj)
+	stset surv_age [pweight=wsiowbase] 	if act==1, failure(anyad) origin(time 0) enter(age_bl) id(subj)
 	stcox i.dryrcat age_bl educ white i.smoke if act==1, nolog strata(apoe gender) nohr
 		return scalar bdr11=_b[1.dryrcat] 
 		return scalar bdr12=_b[2.dryrcat]
@@ -97,16 +95,9 @@ save "G:\Laura\ACT transport\for_boot\long`i'", replace
 	
 display "$S_TIME  $S_DATE"
 
-* first 5 imputed datasets were run in separate files. 
-* set seed 13109874 for first file 
-* set seed 12938471 for 2 and 3
-* set seed 1572893 for 4 and 5
-* set seed 12309487 // for j=6
-* set seed 23409875 // for j=7-17
-set seed 19874 // 18 to 40
+set seed 19874 // 1 to 40
 
-forvalues j=18/40 {	
-	// done similarly for the first 17 datasets, but with the starred out seeds
+forvalues j=1/40 {	
 use "G:\Laura\ACT transport\for_boot\long`j'", clear 
 bootstrap  ///
 		gl11=r(gl11) gl12=r(gl12) gl13=r(gl13) gl14=r(gl14)	gl21=r(gl21) gl22=r(gl22) gl23=r(gl23) gl24=r(gl24) ///
@@ -116,20 +107,20 @@ bootstrap  ///
 		cataract11=r(cataract11) cataract12=r(cataract12) cataract13=r(cataract13) cataract14=r(cataract14) ///
 		cataract21=r(cataract21) cataract22=r(cataract22) cataract23=r(cataract23) cataract24=r(cataract24)  ///
 		bamd11=r(bamd11) bamd12=r(bamd12) bdr11=r(bdr11) bdr12=r(bdr12) 	 ///
-		, reps(500) saving("combboot`j'",replace) nowarn:wp
+		, reps(500) saving("G:\Laura\ACT transport\for_boot\combad`j'",replace) nowarn:wp
 }
 
 display "$S_TIME  $S_DATE"
 
-forvalues j=1/40 {	
-	use "G:\Laura\ACT transport\for_boot\combboot`j'", clear
+qui forvalues j=1/40 {	
+	use "G:\Laura\ACT transport\for_boot\combad`j'", clear
 	gen i=`j'
-	save "G:\Laura\ACT transport\for_boot\combboot`j'", replace
+	save "G:\Laura\ACT transport\for_boot\combad`j'", replace
 	}
 
-use "G:\Laura\ACT transport\for_boot\combboot1", clear
+use "G:\Laura\ACT transport\for_boot\combad1", clear
 forvalues j=2/40 {	
-	append using "G:\Laura\ACT transport\for_boot\combboot`j'"
+	append using "G:\Laura\ACT transport\for_boot\combad`j'"
 	}
 
 * then convert to the numbers I actually want and take percentiles.
@@ -141,7 +132,7 @@ foreach e in gl amd dr cataract {
 	gen `e't=(`e'21+`e'22+`e'23+`e'24)
 }
 
-save "G:\Laura\ACT transport\for_boot\combboot_all", replace
+save "G:\Laura\ACT transport\for_boot\combad_all", replace
 
 * these list out the bootstrapped CI for Tables 3 and 4 
 foreach e in gl amd dr cataract {
