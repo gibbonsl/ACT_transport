@@ -29,7 +29,7 @@ mi impute chained 	///
 	(ologit, ) ed3 smoke ratehealth  ///
 	(mlogit) race3 marry work  ///
 	(logit) hispanic bpcurr cholcurr mi heart_dis stroke asthma copd diabetes cancer osteoa diffdres diffwalk  = ageg5yr sex  ///
-	, add(40) rseed(2466755) force by(act) augment // augment finesses perfect prediction of xx in BRFSS
+	, add(40) rseed(2466755) force by(act) augment // augment finesses perfect prediction of something in BRFSS
 mi describe 	
 mi varying	
 
